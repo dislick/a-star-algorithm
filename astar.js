@@ -12,7 +12,7 @@
       _map.push(_row);
     }
     return _map;
-  })(50, 50, 7);
+  })(50, 50, 6);
 
 
 
@@ -34,23 +34,55 @@
 
     // execute this block while there are still nodes that are open
     while (openList.length > 0) {
-      // get and remove the node with the smallest F value
+      // get the node with the smallest F value
       var currentNode = _.min(openList, function(node) { return node.f });
-      openList = _.without(openList, currentNode);
-
+      
       // check if endNode has been found and end the algorithm
-      if (currentNode.isEqual(endNode)) {
+      if (currentNode.isEqualPosition(endNode)) {
+        // backtrace every parent to determine the path
+        while (currentNode.parent) {
+          currentNode.type = TYPE.DEBUG;
+          currentNode = currentNode.parent;
+        }
         return true;
       }
 
-      // find neighbors etc
-         
+      // find neighbors and calculate G and F values
+      var neighbors = currentNode.getNeighbors(map);   
+
+      neighbors.forEach(function(neighborNode, index) {
+        // if neighbor has already been checked, skip it
+        if (_.find(closedList, function(node) { return node === neighborNode }) || neighborNode.isWall()) {
+          return;
+        }
+
+        var g = currentNode.g + 1;
+        var isLowestG = false;
+
+        // if neighbor is not in open list yet, push it in
+        if (!_.find(openList, function(node) { return node === neighborNode })) {
+          isLowestG = true;
+          openList.push(neighborNode);
+          neighborNode.h = neighborNode.getHeuristic(neighborNode, endNode, startNode);
+        } else if (g < neighborNode.g) {
+          isLowestG = true;
+        }
+
+        if (isLowestG) {
+          neighborNode.parent = currentNode;
+          neighborNode.g = g;
+          neighborNode.f = neighborNode.g + neighborNode.h;
+        }
+      });
 
       // add node to closed list and move on
       closedList.push(currentNode);
+      openList = _.without(openList, currentNode);
     }
 
   };
+
+
 
 
 
@@ -75,6 +107,8 @@
     var screenY = Math.floor(event.offsetY / pixelSize);
     // do something
   });
+
+  calculatePath(map, map[0][0], map[49][49]);
 
 })();
 

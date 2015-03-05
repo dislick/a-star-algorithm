@@ -1,8 +1,9 @@
 (function(root) {
-  
+
   root.TYPE = {
     GROUND: 'ground',
-    WALL: 'wall'
+    WALL: 'wall',
+    DEBUG: 'debug',
   };
 
   root.COLORS = {
