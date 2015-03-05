@@ -1,22 +1,5 @@
 (function() {
 
-  var TYPE = {
-    GROUND: 'ground',
-    WALL: 'wall'
-  };
-
-  var COLORS = {
-    'ground': '#e2e2e2',
-    'wall': '#262626',
-    'debug': '#ff0000',
-  };
-
-  var Node = function(x, y, type) {
-    this.x = x;
-    this.y = y;
-    this.type = type;
-  };
-
   var map = (function(width, height, wallDensity) {
     var _map = [];
     for (var x = 0; x < width; x++) {
