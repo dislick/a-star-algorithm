@@ -1,7 +1,7 @@
 (function() {
 
   // generate a random two-dimensional map array
-  var map = (function(width, height, wallDensity) {
+  var generateMap = function(width, height, wallDensity) {
     var _map = [];
     for (var x = 0; x < width; x++) {
       var _row = [];
@@ -12,7 +12,8 @@
       _map.push(_row);
     }
     return _map;
-  })(50, 50, 6);
+  };
+  var map = generateMap(50, 50, 5);
 
 
 
