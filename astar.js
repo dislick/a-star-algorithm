@@ -136,6 +136,9 @@
     if (event.shiftKey) {
       map[screenX][screenY].type = TYPE.WALL;  
     }
+    if (event.ctrlKey) {
+      map[screenX][screenY].type = TYPE.GROUND;  
+    }
   });
 
   document.addEventListener('keyup', function(event) {
@@ -143,7 +146,7 @@
   });
   document.addEventListener('keydown', function(event) {
     clearPath();
-  })
+  });
 
   document.querySelector('#clearmap').addEventListener('click', function() {
     map.forEach(function(row) {
