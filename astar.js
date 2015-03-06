@@ -13,7 +13,7 @@
     }
     return _map;
   };
-  var map = generateMap(50, 50, 5);
+  var map = generateMap(50, 50, -1);
 
 
 
@@ -25,6 +25,13 @@
    * @return {[Node]} Returns an array with the path nodes
    */
   var calculatePath = function(map, startNode, endNode) {
+    // clear the existing path
+    clearPath();
+
+    // set start node type
+    startNode.type = TYPE.START;
+    endNode.type = TYPE.END;
+
     // this array holds the next nodes to process
     var openList = [];
     // and this one holds all the nodes that have already been processed
@@ -41,10 +48,21 @@
       // check if endNode has been found and end the algorithm
       if (currentNode.isEqualPosition(endNode)) {
         // backtrace every parent to determine the path
+        var pathNodes = [];
         while (currentNode.parent) {
-          currentNode.type = TYPE.DEBUG;
+          pathNodes.push(currentNode);
           currentNode = currentNode.parent;
         }
+        pathNodes = pathNodes.reverse();
+        pathNodes = pathNodes.splice(0, pathNodes.length - 1);
+
+        var index = 0;
+        (function highlightPath() {
+          pathNodes[index].type = TYPE.PATH;
+          if (index++ >= pathNodes.length - 1) return;
+          setTimeout(highlightPath, 1);
+        })();
+
         return true;
       }
 
@@ -77,12 +95,21 @@
       });
 
       // add node to closed list and move on
-      closedList.push(currentNode);
+      closedList.push(currentNode); //currentNode.type = TYPE.CLOSED;
       openList = _.without(openList, currentNode);
     }
 
   };
 
+  var clearPath = function() {
+    map.forEach(function(row) {
+      row.forEach(function(node) {
+        if (node.type === TYPE.PATH || node.type === TYPE.CLOSED) {
+          node.type = TYPE.GROUND;
+        }
+      });     
+    });
+  };
 
 
 
@@ -101,15 +128,37 @@
     });
   };
 
-  setInterval(drawMap, 10);
+  setInterval(drawMap, 0);
 
-  canvas.addEventListener('click', function(event) {
+  canvas.addEventListener('mousemove', function(event) {
     var screenX = Math.floor(event.offsetX / pixelSize);
     var screenY = Math.floor(event.offsetY / pixelSize);
-    // do something
+    if (event.shiftKey) {
+      map[screenX][screenY].type = TYPE.WALL;  
+    }
   });
 
-  calculatePath(map, map[0][0], map[49][49]);
+  document.addEventListener('keyup', function(event) {
+    calculatePath(map, map[0][0], map[map.length - 1][map[map.length - 1].length - 1]);
+  });
+  document.addEventListener('keydown', function(event) {
+    clearPath();
+  })
+
+  document.querySelector('#clearmap').addEventListener('click', function() {
+    map.forEach(function(row) {
+      row.forEach(function(node) {
+        node.type = TYPE.GROUND;
+      });     
+    });
+  });
+
+  document.querySelector('#clearpath').addEventListener('click', clearPath);
+
+  document.querySelector('#solve').addEventListener('click', function() {
+    // simply get the path from the first to the last node
+    calculatePath(map, map[0][0], map[map.length - 1][map[map.length - 1].length - 1]);
+  });
 
 })();
 
